@@ -85,7 +85,7 @@ static int WIIU_JoystickGetDevicePlayerIndex(int device_index);
 static SDL_JoystickGUID WIIU_JoystickGetDeviceGUID(int device_index);
 static SDL_JoystickID WIIU_JoystickGetDeviceInstanceID(int device_index);
 static int WIIU_JoystickOpen(SDL_Joystick *joystick, int device_index);
-static int WIIU_JoystickRumble(SDL_Joystick * joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms);
+static int WIIU_JoystickRumble(SDL_Joystick * joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble);
 static void WIIU_JoystickUpdate(SDL_Joystick *joystick);
 static void WIIU_JoystickClose(SDL_Joystick *joystick);
 static void WIIU_JoystickQuit(void);

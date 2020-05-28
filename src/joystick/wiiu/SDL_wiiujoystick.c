@@ -33,6 +33,7 @@
 #include "../SDL_sysjoystick.h"
 #include "../SDL_joystick_c.h"
 #include "../../events/SDL_touch_c.h"
+#include "../../video/SDL_sysvideo.h"
 
 #include "SDL_log.h"
 #include "SDL_assert.h"
@@ -237,6 +238,11 @@ static int WIIU_JoystickGetDevicePlayerIndex(int device_index)
 
 }
 
+static void
+WIIU_JoystickSetDevicePlayerIndex(int device_index, int player_index)
+{
+}
+
 /* Function to return the stable GUID for a plugged in device */
 static SDL_JoystickGUID WIIU_JoystickGetDeviceGUID(int device_index)
 {
@@ -323,7 +329,7 @@ static int WIIU_JoystickOpen(SDL_Joystick *joystick, int device_index)
 }
 
 /* Rumble functionality */
-static int WIIU_JoystickRumble(SDL_Joystick * joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms)
+static int WIIU_JoystickRumble(SDL_Joystick * joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
 {
 	/* TODO */
 	return SDL_Unsupported();
@@ -337,6 +343,8 @@ static int WIIU_JoystickRumble(SDL_Joystick * joystick, Uint16 low_frequency_rum
 static void WIIU_JoystickUpdate(SDL_Joystick *joystick)
 {
 	int16_t x1, y1, x2, y2;
+	SDL_Window *window;
+
 	/* Gamepad */
 	if (joystick->instance_id == WIIU_GetInstForDevice(WIIU_DEVICE_GAMEPAD)) {
 		static uint16_t last_touch_x = 0;
@@ -362,28 +370,31 @@ static void WIIU_JoystickUpdate(SDL_Joystick *joystick)
 		}
 
 		/* touchscreen */
-		VPADGetTPCalibratedPoint(VPAD_CHAN_0, &tpdata, &vpad.tpNormal);
-		if (tpdata.touched) {
-			/* Send an initial touch */
-			SDL_SendTouch(0, 0, SDL_TRUE,
-					(float) tpdata.x / 1280.0f,
-					(float) tpdata.y / 720.0f, 1);
+	    window = SDL_GetFocusWindow();
+	    if (window != NULL) {
+			VPADGetTPCalibratedPoint(VPAD_CHAN_0, &tpdata, &vpad.tpNormal);
+			if (tpdata.touched) {
+				/* Send an initial touch */
+				SDL_SendTouch(0, 0, window, SDL_TRUE,
+						(float) tpdata.x / 1280.0f,
+						(float) tpdata.y / 720.0f, 1);
 
-			/* Always send the motion */
-			SDL_SendTouchMotion(0, 0,
-					(float) tpdata.x / 1280.0f,
-					(float) tpdata.y / 720.0f, 1);
+				/* Always send the motion */
+				SDL_SendTouchMotion(0, 0, window,
+						(float) tpdata.x / 1280.0f,
+						(float) tpdata.y / 720.0f, 1);
 
-			/* Update old values */
-			last_touch_x = tpdata.x;
-			last_touch_y = tpdata.y;
-			last_touched = 1;
-		} else if (last_touched) {
-			/* Finger released from screen */
-			SDL_SendTouch(0, 0, SDL_FALSE,
-					(float) last_touch_x / 1280.0f,
-					(float) last_touch_y / 720.0f, 1);
-			last_touched = 0;
+				/* Update old values */
+				last_touch_x = tpdata.x;
+				last_touch_y = tpdata.y;
+				last_touched = 1;
+			} else if (last_touched) {
+				/* Finger released from screen */
+				SDL_SendTouch(0, 0, window, SDL_FALSE,
+						(float) last_touch_x / 1280.0f,
+						(float) last_touch_y / 720.0f, 1);
+				last_touched = 0;
+			}
 		}
 
 		/* axys */
@@ -512,6 +523,7 @@ static void WIIU_JoystickQuit(void)
 {
 }
 
+
 SDL_JoystickDriver SDL_WIIU_JoystickDriver =
 {
 	WIIU_JoystickInit,
@@ -519,6 +531,7 @@ SDL_JoystickDriver SDL_WIIU_JoystickDriver =
 	WIIU_JoystickDetect,
 	WIIU_JoystickGetDeviceName,
 	WIIU_JoystickGetDevicePlayerIndex,
+    WIIU_JoystickSetDevicePlayerIndex,
 	WIIU_JoystickGetDeviceGUID,
 	WIIU_JoystickGetDeviceInstanceID,
 	WIIU_JoystickOpen,
@@ -527,5 +540,6 @@ SDL_JoystickDriver SDL_WIIU_JoystickDriver =
 	WIIU_JoystickClose,
 	WIIU_JoystickQuit,
 };
+
 
 #endif

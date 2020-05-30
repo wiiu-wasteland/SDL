@@ -23,7 +23,6 @@
 
 #if SDL_VIDEO_RENDER_WIIU
 
-#include "../../video/wiiu/wiiu_shaders.h"
 #include "../SDL_sysrender.h"
 #include "SDL_render_wiiu.h"
 
@@ -104,17 +103,17 @@ static void render_scene(SDL_Renderer * renderer)
 
     /* Render the window */
     WHBGfxClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    wiiuSetTextureShader();
+    GX2_SelectShader(data->shaders, SHADER_TEXTURE);
 
-    GX2SetVertexUniformReg(wiiuTextureShader.vertexShader->uniformVars[0].offset, 4, (uint32_t *)&u_viewSize);
-    GX2SetVertexUniformReg(wiiuTextureShader.vertexShader->uniformVars[1].offset, 4, (uint32_t *)&tdata->u_texSize);
-    GX2SetPixelUniformReg(wiiuTextureShader.pixelShader->uniformVars[0].offset, 4, (uint32_t*)&tdata->u_mod);
+    GX2_SetVertexShaderUniform(data->shaders, 0, 4, (uint32_t *)&u_viewSize);
+    GX2_SetVertexShaderUniform(data->shaders, 1, 4, (uint32_t *)&tdata->u_texSize);
+    GX2_SetFragmentShaderUniform(data->shaders, 0, 4, (uint32_t*)&tdata->u_mod);
 
     GX2RSetAttributeBuffer(a_position, 0, a_position->elemSize, 0);
     GX2RSetAttributeBuffer(a_texCoord, 1, a_texCoord->elemSize, 0);
 
-    GX2SetPixelTexture(&tdata->texture, wiiuTextureShader.pixelShader->samplerVars[0].location);
-    GX2SetPixelSampler(&tdata->sampler, wiiuTextureShader.pixelShader->samplerVars[0].location);
+    GX2SetPixelTexture(&tdata->texture, 0);
+    GX2SetPixelSampler(&tdata->sampler, 0);
 
     GX2SetColorControl(GX2_LOGIC_OP_COPY, 0x00, FALSE, TRUE);
 

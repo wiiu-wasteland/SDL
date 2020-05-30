@@ -24,11 +24,12 @@
 #if SDL_VIDEO_RENDER_WIIU
 
 #include "../../video/wiiu/SDL_wiiuvideo.h"
-#include "../../video/wiiu/wiiu_shaders.h"
 #include "../SDL_sysrender.h"
 #include "SDL_hints.h"
 #include "SDL_render_wiiu.h"
+#include "SDL_shaders_gx2.h"
 
+#include <gx2/shaders.h>
 #include <gx2/texture.h>
 #include <gx2/draw.h>
 #include <gx2/registers.h>
@@ -200,14 +201,14 @@ void WIIU_SDL_RenderCopy(SDL_Renderer * renderer, SDL_RenderCommand* cmd, void* 
     );
 
     /* Render */
-    wiiuSetTextureShader();
+    GX2_SelectShader(data->shaders, SHADER_TEXTURE);
     GX2SetPixelTexture(&tdata->texture, 0);
     GX2SetPixelSampler(&tdata->sampler, 0);
     GX2SetAttribBuffer(0, count * stride, stride, a_position_vals);
     GX2SetAttribBuffer(1, count * stride, stride, a_texCoord_vals); //TODO runs off end of buffer lol
-    GX2SetVertexUniformReg(wiiuTextureShader.vertexShader->uniformVars[0].offset, 4, (uint32_t *)&data->u_viewSize);
-    GX2SetVertexUniformReg(wiiuTextureShader.vertexShader->uniformVars[1].offset, 4, (uint32_t *)&tdata->u_texSize);
-    GX2SetPixelUniformReg(wiiuTextureShader.pixelShader->uniformVars[0].offset, 4, (uint32_t *)&tdata->u_mod);
+    GX2_SetVertexShaderUniform(data->shaders, 0, 4, (uint32_t *)&data->u_viewSize);
+    GX2_SetVertexShaderUniform(data->shaders, 1, 4, (uint32_t *)&tdata->u_texSize);
+    GX2_SetFragmentShaderUniform(data->shaders, 0, 4, (uint32_t *)&tdata->u_mod);
     WIIU_SDL_SetGX2BlendMode(cmd->data.draw.blend);
     GX2DrawEx(GX2_PRIMITIVE_MODE_QUADS, 4, 0, 1);
 }
@@ -292,10 +293,10 @@ void WIIU_SDL_RenderDrawPrimitive(SDL_Renderer * renderer, SDL_RenderCommand* cm
     );
 
     /* Render points */
-    wiiuSetColorShader();
+    GX2_SelectShader(data->shaders, SHADER_COLOR);
     GX2SetAttribBuffer(0, count * stride, stride, vertexes);
-    GX2SetVertexUniformReg(wiiuColorShader.vertexShader->uniformVars[0].offset, 4, (uint32_t *)&data->u_viewSize);
-    GX2SetPixelUniformReg(wiiuColorShader.pixelShader->uniformVars[0].offset, 4, (uint32_t *)&u_colour);
+    GX2_SetVertexShaderUniform(data->shaders, 0, 4, &data->u_viewSize);
+    GX2_SetFragmentShaderUniform(data->shaders, 0, 4, &u_colour);
     WIIU_SDL_SetGX2BlendMode(cmd->data.draw.blend);
     if (cmd->command == SDL_RENDERCMD_DRAW_POINTS) {
         GX2DrawEx(GX2_PRIMITIVE_MODE_POINTS, count, 0, 1);

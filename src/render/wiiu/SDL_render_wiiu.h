@@ -26,6 +26,7 @@
 
 #include "../SDL_sysrender.h"
 #include "SDL_pixels.h"
+#include "SDL_shaders_gx2.h"
 #include <gx2r/buffer.h>
 #include <gx2/context.h>
 #include <gx2/sampler.h>
@@ -85,6 +86,7 @@ struct WIIU_TextureDrawData
 struct WIIU_RenderData
 {
     GX2ContextState *ctx;
+    GX2_ShaderContext *shaders;
     WIIU_RenderAllocData *listfree;
     WIIU_TextureDrawData *listdraw;
     WIIUVec4 u_viewSize;

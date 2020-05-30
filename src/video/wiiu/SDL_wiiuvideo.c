@@ -46,8 +46,6 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "wiiu_shaders.h"
-
 static int WIIU_VideoInit(_THIS);
 static int WIIU_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 static void WIIU_VideoQuit(_THIS);
@@ -62,9 +60,6 @@ static int WIIU_VideoInit(_THIS)
 
 	WHBProcInit();
 	WHBGfxInit();
-
-	// setup shader
-	wiiuInitTextureShader();
 
 	// add default mode (1280x720)
 	mode.format = SDL_PIXELFORMAT_RGBA8888;
@@ -82,7 +77,6 @@ static int WIIU_VideoInit(_THIS)
 
 static void WIIU_VideoQuit(_THIS)
 {
-    wiiuFreeTextureShader();
 	WHBGfxShutdown();
 	WHBProcShutdown();
 }

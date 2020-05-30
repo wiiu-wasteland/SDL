@@ -23,11 +23,10 @@
 
 #if SDL_VIDEO_RENDER_WIIU
 
-#include "../../video/wiiu/SDL_wiiuvideo.h"
-#include "../../video/wiiu/wiiu_shaders.h"
 #include "../SDL_sysrender.h"
 #include "SDL_hints.h"
 #include "SDL_render_wiiu.h"
+#include "SDL_shaders_gx2.h"
 
 #include <gx2/event.h>
 #include <gx2/registers.h>
@@ -89,8 +88,7 @@ SDL_Renderer *WIIU_SDL_CreateRenderer(SDL_Window * window, Uint32 flags)
     renderer->window = window;
 
     /* Prepare shaders */
-    wiiuInitTextureShader();
-    wiiuInitColorShader();
+    data->shaders = GX2_CreateShaderContext();
 
     /* List of attibutes to free after render */
     data->listfree = NULL;
@@ -239,8 +237,7 @@ void WIIU_SDL_DestroyRenderer(SDL_Renderer * renderer)
     WIIU_FreeRenderData(data);
     free(data->ctx);
 
-    wiiuFreeColorShader();
-    wiiuFreeTextureShader();
+    GX2_DestroyShaderContext(data->shaders);
 
     SDL_free(data);
     SDL_free(renderer);

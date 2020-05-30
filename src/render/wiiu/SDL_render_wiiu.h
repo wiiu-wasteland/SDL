@@ -166,38 +166,6 @@ static inline void WIIU_FreeRenderData(WIIU_RenderData *r)
     }
 }
 
-static inline void WIIU_TextureStartRendering(WIIU_RenderData *r, WIIU_TextureData *t)
-{
-    WIIU_TextureDrawData *d = SDL_malloc(sizeof(WIIU_TextureDrawData));
-    t->isRendering = 1;
-    d->texdata = t;
-    d->next = r->listdraw;
-    r->listdraw = d;
-}
-
-static inline void WIIU_TextureDoneRendering(WIIU_RenderData *r)
-{
-    while (r->listdraw) {
-        WIIU_TextureDrawData *d = r->listdraw;
-        r->listdraw = r->listdraw->next;
-        d->texdata->isRendering = 0;
-        SDL_free(d);
-    }
-}
-
-/* If the texture is currently being rendered and we change the content
-   before the rendering is finished, the GPU will end up partially drawing
-   the new data, so we wait for the GPU to finish rendering before
-   updating the texture */
-static inline void WIIU_TextureCheckWaitRendering(WIIU_RenderData *r, WIIU_TextureData *t)
-{
-    if (t->isRendering) {
-        GX2DrawDone();
-        WIIU_TextureDoneRendering(r);
-        WIIU_FreeRenderData(r);
-    }
-}
-
 static inline SDL_Texture * WIIU_GetRenderTarget(SDL_Renderer* renderer)
 {
     WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;

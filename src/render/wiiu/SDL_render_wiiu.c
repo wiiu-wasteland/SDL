@@ -199,6 +199,8 @@ int WIIU_SDL_RunCommandQueue(SDL_Renderer* renderer, SDL_RenderCommand* cmd, voi
         }
         cmd = cmd->next;
     }
+
+    GX2DrawDone();
     return 0;
 }
 
@@ -209,9 +211,6 @@ int WIIU_SDL_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * texture)
     /* Set window or texture as target */
     WIIU_TextureData *tdata = (WIIU_TextureData *)((texture) ? texture->driverdata
                                                              : data->windowTex.driverdata);
-
-    /* Wait for the texture rendering to finish */
-    WIIU_TextureCheckWaitRendering(data, tdata);
 
     /* Update u_viewSize */
     data->u_viewSize = (WIIUVec4) {
@@ -238,8 +237,6 @@ void WIIU_SDL_DestroyRenderer(SDL_Renderer * renderer)
     GX2DrawDone();
 
     WIIU_FreeRenderData(data);
-    WIIU_TextureDoneRendering(data);
-
     free(data->ctx);
 
     wiiuFreeColorShader();

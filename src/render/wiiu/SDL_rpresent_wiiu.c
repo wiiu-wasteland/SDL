@@ -148,7 +148,6 @@ void WIIU_SDL_RenderPresent(SDL_Renderer * renderer)
 
     /* Free the list of render and draw data */
     WIIU_FreeRenderData(data);
-    WIIU_TextureDoneRendering(data);
 
     /* SDL context state will be restored in next RunCommandQueue call */
 }

@@ -192,9 +192,6 @@ void WIIU_SDL_RenderCopy(SDL_Renderer * renderer, SDL_RenderCommand* cmd, void* 
         GX2RInvalidateSurface(&tdata->texture.surface, 0, 0);
     }
 
-    /* Update texture rendering state */
-    WIIU_TextureStartRendering(data, tdata);
-
 /*  Invalidate caches related to vertexes */
     GX2Invalidate(
         GX2_INVALIDATE_MODE_CPU_ATTRIBUTE_BUFFER,

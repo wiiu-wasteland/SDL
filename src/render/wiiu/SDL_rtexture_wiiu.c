@@ -36,7 +36,7 @@
 #include <malloc.h>
 #include <stdarg.h>
 
-int WIIU_SDL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
+int WIIU_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 {
     BOOL res;
     WIIUPixFmt gx2_fmt;
@@ -130,7 +130,7 @@ int WIIU_SDL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 /* Somewhat adapted from SDL_render.c: SDL_LockTextureNative
    The app basically wants a pointer to a particular rectangle as well as
    write access to it. Easy GX2R! */
-int WIIU_SDL_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
+int WIIU_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
                          const SDL_Rect * rect, void **pixels, int *pitch)
 {
     WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;
@@ -155,13 +155,13 @@ int WIIU_SDL_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
     return 0;
 }
 
-void WIIU_SDL_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
+void WIIU_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 {
     WIIU_TextureData *tdata = (WIIU_TextureData *) texture->driverdata;
     GX2RUnlockSurfaceEx(&tdata->texture.surface, 0, 0);
 }
 
-int WIIU_SDL_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
+int WIIU_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
                            const SDL_Rect * rect, const void *pixels, int pitch)
 {
     Uint32 BytesPerPixel = SDL_BYTESPERPIXEL(texture->format);
@@ -170,7 +170,7 @@ int WIIU_SDL_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
     int row, dst_pitch;
 
     /* We write the rules, and we say all textures are streaming */
-    WIIU_SDL_LockTexture(renderer, texture, rect, (void**)&dst, &dst_pitch);
+    WIIU_LockTexture(renderer, texture, rect, (void**)&dst, &dst_pitch);
 
     for (row = 0; row < rect->h; ++row) {
         SDL_memcpy(dst, src, length);
@@ -178,12 +178,12 @@ int WIIU_SDL_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
         dst += dst_pitch;
     }
 
-    WIIU_SDL_UnlockTexture(renderer, texture);
+    WIIU_UnlockTexture(renderer, texture);
 
     return 0;
 }
 
-int WIIU_SDL_SetTextureColorMod(SDL_Renderer * renderer, SDL_Texture * texture)
+int WIIU_SetTextureColorMod(SDL_Renderer * renderer, SDL_Texture * texture)
 {
     WIIU_TextureData *tdata = (WIIU_TextureData *) texture->driverdata;
 
@@ -195,7 +195,7 @@ int WIIU_SDL_SetTextureColorMod(SDL_Renderer * renderer, SDL_Texture * texture)
     return 0;
 }
 
-int WIIU_SDL_SetTextureAlphaMod(SDL_Renderer * renderer, SDL_Texture * texture)
+int WIIU_SetTextureAlphaMod(SDL_Renderer * renderer, SDL_Texture * texture)
 {
     WIIU_TextureData *tdata = (WIIU_TextureData *) texture->driverdata;
 
@@ -205,7 +205,7 @@ int WIIU_SDL_SetTextureAlphaMod(SDL_Renderer * renderer, SDL_Texture * texture)
     return 0;
 }
 
-void WIIU_SDL_DestroyTexture(SDL_Renderer * renderer, SDL_Texture * texture)
+void WIIU_DestroyTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 {
     WIIU_RenderData *data;
     WIIU_TextureData *tdata;

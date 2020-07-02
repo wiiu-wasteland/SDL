@@ -105,44 +105,44 @@ struct WIIU_TextureData
 #define WIIU_TEXTURE_MEM1_MAGIC (void *)0xCAFE0001
 
 /* SDL_render API implementation */
-SDL_Renderer *WIIU_SDL_CreateRenderer(SDL_Window * window, Uint32 flags);
-void WIIU_SDL_WindowEvent(SDL_Renderer * renderer,
+SDL_Renderer *WIIU_CreateRenderer(SDL_Window * window, Uint32 flags);
+void WIIU_WindowEvent(SDL_Renderer * renderer,
                              const SDL_WindowEvent *event);
-int WIIU_SDL_GetOutputSize(SDL_Renderer * renderer, int *w, int *h);
-int WIIU_SDL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture);
-int WIIU_SDL_SetTextureColorMod(SDL_Renderer * renderer,
+int WIIU_GetOutputSize(SDL_Renderer * renderer, int *w, int *h);
+int WIIU_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture);
+int WIIU_SetTextureColorMod(SDL_Renderer * renderer,
                                 SDL_Texture * texture);
-int WIIU_SDL_SetTextureAlphaMod(SDL_Renderer * renderer,
+int WIIU_SetTextureAlphaMod(SDL_Renderer * renderer,
                                 SDL_Texture * texture);
-int WIIU_SDL_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
+int WIIU_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
                        const SDL_Rect * rect, const void *pixels,
                        int pitch);
-int WIIU_SDL_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
+int WIIU_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
                      const SDL_Rect * rect, void **pixels, int *pitch);
-void WIIU_SDL_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture);
-int WIIU_SDL_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * texture);
-int WIIU_SDL_UpdateViewport(SDL_Renderer * renderer);
-int WIIU_SDL_UpdateClipRect(SDL_Renderer * renderer);
-int WIIU_SDL_RenderClear(SDL_Renderer * renderer);
-int WIIU_SDL_RenderDrawPoints(SDL_Renderer * renderer,
+void WIIU_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture);
+int WIIU_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * texture);
+int WIIU_UpdateViewport(SDL_Renderer * renderer);
+int WIIU_UpdateClipRect(SDL_Renderer * renderer);
+int WIIU_RenderClear(SDL_Renderer * renderer);
+int WIIU_RenderDrawPoints(SDL_Renderer * renderer,
                           const SDL_FPoint * points, int count);
-int WIIU_SDL_RenderDrawLines(SDL_Renderer * renderer,
+int WIIU_RenderDrawLines(SDL_Renderer * renderer,
                          const SDL_FPoint * points, int count);
-int WIIU_SDL_RenderFillRects(SDL_Renderer * renderer,
+int WIIU_RenderFillRects(SDL_Renderer * renderer,
                          const SDL_FRect * rects, int count);
-int WIIU_SDL_RenderCopy(SDL_Renderer * renderer, SDL_Texture * texture,
+int WIIU_RenderCopy(SDL_Renderer * renderer, SDL_Texture * texture,
                     const SDL_Rect * srcrect, const SDL_FRect * dstrect);
-int WIIU_SDL_RenderCopyEx(SDL_Renderer * renderer, SDL_Texture * texture,
+int WIIU_RenderCopyEx(SDL_Renderer * renderer, SDL_Texture * texture,
                       const SDL_Rect * srcrect, const SDL_FRect * dstrect,
                       const double angle, const SDL_FPoint * center, const SDL_RendererFlip flip);
-int WIIU_SDL_RenderReadPixels(SDL_Renderer * renderer, const SDL_Rect * rect,
+int WIIU_RenderReadPixels(SDL_Renderer * renderer, const SDL_Rect * rect,
                           Uint32 format, void * pixels, int pitch);
-void WIIU_SDL_RenderPresent(SDL_Renderer * renderer);
-void WIIU_SDL_DestroyTexture(SDL_Renderer * renderer, SDL_Texture * texture);
-void WIIU_SDL_DestroyRenderer(SDL_Renderer * renderer);
+void WIIU_RenderPresent(SDL_Renderer * renderer);
+void WIIU_DestroyTexture(SDL_Renderer * renderer, SDL_Texture * texture);
+void WIIU_DestroyRenderer(SDL_Renderer * renderer);
 
 /* Driver internal functions */
-void WIIU_SDL_CreateWindowTex(SDL_Renderer * renderer, SDL_Window * window);
+void WIIU_CreateWindowTex(SDL_Renderer * renderer, SDL_Window * window);
 
 /* Utility/helper functions */
 static inline GX2RBuffer * WIIU_AllocRenderData(WIIU_RenderData *r, GX2RBuffer buffer)

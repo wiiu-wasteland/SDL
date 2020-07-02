@@ -37,7 +37,7 @@
 
 SDL_RenderDriver WIIU_RenderDriver;
 
-SDL_Renderer *WIIU_SDL_CreateRenderer(SDL_Window * window, Uint32 flags)
+SDL_Renderer *WIIU_CreateRenderer(SDL_Window * window, Uint32 flags)
 {
     SDL_Renderer *renderer;
     WIIU_RenderData *data;
@@ -50,33 +50,33 @@ SDL_Renderer *WIIU_SDL_CreateRenderer(SDL_Window * window, Uint32 flags)
 
     data = (WIIU_RenderData *) SDL_calloc(1, sizeof(*data));
     if (!data) {
-        WIIU_SDL_DestroyRenderer(renderer);
+        WIIU_DestroyRenderer(renderer);
         SDL_OutOfMemory();
         return NULL;
     }
 
     /* Setup renderer functions */
-    renderer->WindowEvent = WIIU_SDL_WindowEvent;
-    renderer->GetOutputSize = WIIU_SDL_GetOutputSize;
-    renderer->CreateTexture = WIIU_SDL_CreateTexture;
-    renderer->SetTextureColorMod = WIIU_SDL_SetTextureColorMod;
-    renderer->SetTextureAlphaMod = WIIU_SDL_SetTextureAlphaMod;
-    renderer->UpdateTexture = WIIU_SDL_UpdateTexture;
-    renderer->LockTexture = WIIU_SDL_LockTexture;
-    renderer->UnlockTexture = WIIU_SDL_UnlockTexture;
-    renderer->SetRenderTarget = WIIU_SDL_SetRenderTarget;
-    renderer->UpdateViewport = WIIU_SDL_UpdateViewport;
-    renderer->UpdateClipRect = WIIU_SDL_UpdateClipRect;
-    renderer->RenderClear = WIIU_SDL_RenderClear;
-    renderer->RenderDrawPoints = WIIU_SDL_RenderDrawPoints;
-    renderer->RenderDrawLines = WIIU_SDL_RenderDrawLines;
-    renderer->RenderFillRects = WIIU_SDL_RenderFillRects;
-    renderer->RenderCopy = WIIU_SDL_RenderCopy;
-    renderer->RenderCopyEx = WIIU_SDL_RenderCopyEx;
-    renderer->RenderReadPixels = WIIU_SDL_RenderReadPixels;
-    renderer->RenderPresent = WIIU_SDL_RenderPresent;
-    renderer->DestroyTexture = WIIU_SDL_DestroyTexture;
-    renderer->DestroyRenderer = WIIU_SDL_DestroyRenderer;
+    renderer->WindowEvent = WIIU_WindowEvent;
+    renderer->GetOutputSize = WIIU_GetOutputSize;
+    renderer->CreateTexture = WIIU_CreateTexture;
+    renderer->SetTextureColorMod = WIIU_SetTextureColorMod;
+    renderer->SetTextureAlphaMod = WIIU_SetTextureAlphaMod;
+    renderer->UpdateTexture = WIIU_UpdateTexture;
+    renderer->LockTexture = WIIU_LockTexture;
+    renderer->UnlockTexture = WIIU_UnlockTexture;
+    renderer->SetRenderTarget = WIIU_SetRenderTarget;
+    renderer->UpdateViewport = WIIU_UpdateViewport;
+    renderer->UpdateClipRect = WIIU_UpdateClipRect;
+    renderer->RenderClear = WIIU_RenderClear;
+    renderer->RenderDrawPoints = WIIU_RenderDrawPoints;
+    renderer->RenderDrawLines = WIIU_RenderDrawLines;
+    renderer->RenderFillRects = WIIU_RenderFillRects;
+    renderer->RenderCopy = WIIU_RenderCopy;
+    renderer->RenderCopyEx = WIIU_RenderCopyEx;
+    renderer->RenderReadPixels = WIIU_RenderReadPixels;
+    renderer->RenderPresent = WIIU_RenderPresent;
+    renderer->DestroyTexture = WIIU_DestroyTexture;
+    renderer->DestroyRenderer = WIIU_DestroyRenderer;
     renderer->info = WIIU_RenderDriver.info;
     renderer->driverdata = data;
     renderer->window = window;
@@ -104,22 +104,22 @@ SDL_Renderer *WIIU_SDL_CreateRenderer(SDL_Window * window, Uint32 flags)
     GX2SetCullOnlyControl(GX2_FRONT_FACE_CCW, FALSE, FALSE);
 
     /* Make a texture for the window */
-    WIIU_SDL_CreateWindowTex(renderer, window);
+    WIIU_CreateWindowTex(renderer, window);
 
     /* Setup colour buffer, rendering to the window */
-    WIIU_SDL_SetRenderTarget(renderer, NULL);
+    WIIU_SetRenderTarget(renderer, NULL);
 
     return renderer;
 }
 
-void WIIU_SDL_CreateWindowTex(SDL_Renderer * renderer, SDL_Window * window)
+void WIIU_CreateWindowTex(SDL_Renderer * renderer, SDL_Window * window)
 {
     WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;
     const char *s_hint;
     SDL_ScaleMode s_mode;
 
     if (data->windowTex.driverdata) {
-        WIIU_SDL_DestroyTexture(renderer, &data->windowTex);
+        WIIU_DestroyTexture(renderer, &data->windowTex);
         data->windowTex = (SDL_Texture) {0};
     }
 
@@ -148,10 +148,10 @@ void WIIU_SDL_CreateWindowTex(SDL_Renderer * renderer, SDL_Window * window)
     SDL_GetWindowSize(window, &data->windowTex.w, &data->windowTex.h);
 
     /* Setup texture and color buffer for the window */
-    WIIU_SDL_CreateTexture(renderer, &data->windowTex);
+    WIIU_CreateTexture(renderer, &data->windowTex);
 }
 
-int WIIU_SDL_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * texture)
+int WIIU_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * texture)
 {
     WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;
 
@@ -180,7 +180,7 @@ int WIIU_SDL_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * texture)
     return 0;
 }
 
-void WIIU_SDL_DestroyRenderer(SDL_Renderer * renderer)
+void WIIU_DestroyRenderer(SDL_Renderer * renderer)
 {
     WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;
 
@@ -198,7 +198,7 @@ void WIIU_SDL_DestroyRenderer(SDL_Renderer * renderer)
     SDL_free(renderer);
 }
 
-int WIIU_SDL_RenderReadPixels(SDL_Renderer * renderer, const SDL_Rect * rect,
+int WIIU_RenderReadPixels(SDL_Renderer * renderer, const SDL_Rect * rect,
                               Uint32 format, void * pixels, int pitch)
 {
     SDL_Texture* target = WIIU_GetRenderTarget(renderer);
@@ -230,7 +230,7 @@ int WIIU_SDL_RenderReadPixels(SDL_Renderer * renderer, const SDL_Rect * rect,
 
 SDL_RenderDriver WIIU_RenderDriver =
 {
-    .CreateRenderer = WIIU_SDL_CreateRenderer,
+    .CreateRenderer = WIIU_CreateRenderer,
     .info = {
         .name = "WiiU GX2",
         .flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE,

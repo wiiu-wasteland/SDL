@@ -121,7 +121,7 @@ static void render_scene(SDL_Renderer * renderer)
     GX2DrawEx(GX2_PRIMITIVE_MODE_QUADS, 4, 0, 1);
 }
 
-void WIIU_SDL_RenderPresent(SDL_Renderer * renderer)
+void WIIU_RenderPresent(SDL_Renderer * renderer)
 {
     WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;
     Uint32 flags = SDL_GetWindowFlags(renderer->window);
@@ -149,9 +149,6 @@ void WIIU_SDL_RenderPresent(SDL_Renderer * renderer)
     /* Free the list of render and draw data */
     WIIU_FreeRenderData(data);
     WIIU_TextureDoneRendering(data);
-
-    /* Restore SDL context state */
-    GX2SetContextState(data->ctx);
 }
 
 #endif /* SDL_VIDEO_RENDER_WIIU */

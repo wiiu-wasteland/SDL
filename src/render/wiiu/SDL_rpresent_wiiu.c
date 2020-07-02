@@ -24,6 +24,7 @@
 #if SDL_VIDEO_RENDER_WIIU
 
 #include "../../video/wiiu/wiiu_shaders.h"
+#include "../../video/wiiu/SDL_wiiumouse.h"
 #include "../SDL_sysrender.h"
 #include "SDL_render_wiiu.h"
 
@@ -126,6 +127,8 @@ void WIIU_SDL_RenderPresent(SDL_Renderer * renderer)
     WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;
     Uint32 flags = SDL_GetWindowFlags(renderer->window);
 
+	WIIU_RenderCursor(renderer);
+	
     WHBGfxBeginRender();
 
     /* Only render to TV if the window is *not* drc-only */
@@ -149,6 +152,23 @@ void WIIU_SDL_RenderPresent(SDL_Renderer * renderer)
 
     /* Restore SDL context state */
     GX2SetContextState(data->ctx);
+}
+
+void WIIU_SDL_RenderPresent(SDL_Renderer * renderer)
+{
+	WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;
+	
+	/* Swap window color buffer (the next vsync will render the new buffer) */
+	int workBuffer = *(data->WCurrentBuffer);
+	*(data->WCurrentBuffer) = !workBuffer;
+
+	/* Update working buffer */
+	data->WColorBuffer = WColorBuffers[workBuffer];
+	
+	/* If we were currently rendering to the window, update context state */
+	if (!renderer->target) {
+		WIIU_SDL_SetRenderTarget(renderer, NULL);
+	}
 }
 
 #endif /* SDL_VIDEO_RENDER_WIIU */

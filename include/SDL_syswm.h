@@ -126,7 +126,8 @@ typedef enum
     SDL_SYSWM_WINRT,
     SDL_SYSWM_ANDROID,
     SDL_SYSWM_VIVANTE,
-    SDL_SYSWM_OS2
+    SDL_SYSWM_OS2,
+    SDL_SYSWM_WIIU,
 } SDL_SYSWM_TYPE;
 
 /**
@@ -279,6 +280,13 @@ struct SDL_SysWMinfo
             EGLNativeDisplayType display;
             EGLNativeWindowType window;
         } vivante;
+#endif
+#if defined(SDL_VIDEO_DRIVER_WIIU)
+        struct
+        {
+            GX2ColorBuffer *WColorBuffers[2];
+            int *WCurrentBuffer;
+        } wiiu;
 #endif
 
         /* Make sure this union is always 64 bytes (8 64-bit pointers). */

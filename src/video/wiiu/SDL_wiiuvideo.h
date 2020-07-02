@@ -29,17 +29,48 @@
 #include "SDL_surface.h"
 
 #define WIIU_WINDOW_DATA "_SDL_WiiUData"
-typedef struct
+
+struct VWIIUVec2
 {
-    SDL_Surface *surface;
-    GX2Texture texture;
-} WIIU_WindowData;
+	union { float x, r; };
+	union { float y, g; };
+};
+
+struct VWIIUVec3
+{
+	union { float x, r; };
+	union { float y, g; };
+	union { float z, b; };
+};
+
+struct VWIIUVec4
+{
+	union { float x, r; };
+	union { float y, g; };
+	union { float z, b; };
+	union { float w, a; };
+};
 
 typedef struct
 {
-    SDL_bool tv_window_exists;
-    SDL_bool drc_window_exists;
-    SDL_bool mirrored_window_exists;
-} WIIU_VideoDeviceData;
+	GX2Sampler sampler;
+	GX2Texture texture;
+	GX2ColorBuffer cbuf;
+	WIIUVec4 u_texSize;
+	WIIUVec4 u_mod;
+} WIIU_WindowBufferData;
+
+typedef struct
+{
+    GX2Sampler sampler;
+    GX2RBuffer a_position;
+    GX2RBuffer a_texCoord;
+    WIIUVec4 u_texSize;
+	struct {
+		GX2Texture texture;
+		GX2ColorBuffer cbuf;
+	} buffer[2];
+	int currentBuffer;
+} SDL_WindowData;
 
 #endif //SDL_wiiuvideo_h

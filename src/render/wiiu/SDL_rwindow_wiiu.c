@@ -29,11 +29,7 @@
 void WIIU_SDL_WindowEvent(SDL_Renderer * renderer, const SDL_WindowEvent *event)
 {
     if (event->event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-        /* Re-init the colour buffer etc. for new window size
-           TODO check: what if we're rendering to a texture when this happens?
-           SDL may handle this already, see SDL_render.c: SDL_RendererEventWatch */
-        WIIU_SDL_CreateWindowTex(renderer, renderer->window);
-        WIIU_SDL_SetRenderTarget(renderer, NULL);
+        WIIU_SDL_GetWindowColorBuffer();
     }
 }
 

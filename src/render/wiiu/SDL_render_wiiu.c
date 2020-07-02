@@ -103,79 +103,80 @@ SDL_Renderer *WIIU_SDL_CreateRenderer(SDL_Window * window, Uint32 flags)
     GX2SetDepthOnlyControl(FALSE, FALSE, GX2_COMPARE_FUNC_NEVER);
     GX2SetCullOnlyControl(GX2_FRONT_FACE_CCW, FALSE, FALSE);
 
-    /* Make a texture for the window */
-    WIIU_SDL_CreateWindowTex(renderer, window);
-
-    /* Setup colour buffer, rendering to the window */
-    WIIU_SDL_SetRenderTarget(renderer, NULL);
+    /* Setup window color buffer */
+    WIIU_SDL_GetWindowColorBuffer(renderer);
 
     return renderer;
 }
 
-void WIIU_SDL_CreateWindowTex(SDL_Renderer * renderer, SDL_Window * window)
+void WIIU_SDL_GetWindowColorBuffer(SDL_Renderer *renderer)
+{
+    WIIU_RenderData *data = renderer->driverdata;
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    
+    /* Get window informations */
+    if(!SDL_GetWindowWMInfo(renderer->window, &info) || 
+       (info.subsystem != SDL_SYSWM_WIIU)) {
+        return;
+    }
+    
+    /* Save window color buffer */
+    data->WCurrentBuffer = info.info.wiiu.WCurrentBuffer;
+    data->WColorBuffers = info.info.wiiu.WColorBuffers;
+    data->WColorBuffer = data->WColorBuffers[!*(data->WCurrentBuffer)];
+    
+    /* Update context state if needed */
+    if (!renderer->target) {
+        WIIU_SDL_SetRenderTarget(renderer, NULL);
+    }
+}
+
+void WIIU_SDL_RenderPresent(SDL_Renderer * renderer)
 {
     WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;
-    const char *s_hint;
-    SDL_ScaleMode s_mode;
-
-    if (data->windowTex.driverdata) {
-        WIIU_SDL_DestroyTexture(renderer, &data->windowTex);
-        data->windowTex = (SDL_Texture) {0};
+    
+    /* Swap window color buffer (on the next vsync the new buffer will render - see SDL_wiiuvideo.c) */
+    int workBuffer = *(data->WCurrentBuffer);
+    *(data->WCurrentBuffer) = !workBuffer;
+    
+    /* Update working buffer */
+    data->WColorBuffer = WColorBuffers[workBuffer];
+    
+    /* Update context state if needed */
+    if (!renderer->target) {
+        WIIU_SDL_SetRenderTarget(renderer, NULL);
     }
-
-    /* Setup scaling mode; this is normally handled by
-       SDL_CreateTexture/SDL_GetScaleMode, but those can't
-       be called before fully initializinig the renderer */
-    s_hint = SDL_GetHint(SDL_HINT_RENDER_SCALE_QUALITY);
-    if (!s_hint || SDL_strcasecmp(s_hint, "nearest") == 0) {
-        s_mode = SDL_ScaleModeNearest;
-    } else if (SDL_strcasecmp(s_hint, "linear") == 0) {
-        s_mode = SDL_ScaleModeLinear;
-    } else if (SDL_strcasecmp(s_hint, "best") == 0) {
-        s_mode = SDL_ScaleModeBest;
-    } else {
-        s_mode = (SDL_ScaleMode)SDL_atoi(s_hint);
-    }
-
-    /* Allocate a buffer for the window */
-    data->windowTex = (SDL_Texture) {
-        .format = SDL_PIXELFORMAT_RGBA8888,
-        .r = 255, .g = 255, .b = 255, .a = 255,
-        .driverdata = WIIU_TEXTURE_MEM1_MAGIC,
-        .scaleMode = s_mode,
-    };
-
-    SDL_GetWindowSize(window, &data->windowTex.w, &data->windowTex.h);
-
-    /* Setup texture and color buffer for the window */
-    WIIU_SDL_CreateTexture(renderer, &data->windowTex);
 }
 
 int WIIU_SDL_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * texture)
 {
     WIIU_RenderData *data = (WIIU_RenderData *) renderer->driverdata;
+    GX2ColorBuffer *cbuf;
 
-    /* Set window or texture as target */
-    WIIU_TextureData *tdata = (WIIU_TextureData *)((texture) ? texture->driverdata
-                                                             : data->windowTex.driverdata);
-
-    /* Wait for the texture rendering to finish */
-    WIIU_TextureCheckWaitRendering(data, tdata);
+    /* Get target color buffer */
+    if (texture) {
+        WIIU_TextureData *tdata = (WIIU_TextureData *)texture->driverdata;
+        WIIU_TextureCheckWaitRendering(data, tdata);
+        cbuf = &tdata->cbuf;
+    } else {
+        cbuf = data->WColorBuffer;
+    }
 
     /* Update u_viewSize */
     data->u_viewSize = (WIIUVec4) {
-        .x = (float)tdata->cbuf.surface.width,
-        .y = (float)tdata->cbuf.surface.height,
+        .x = (float)cbuf->surface.width,
+        .y = (float)cbuf->surface.height,
     };
 
     /* Update context state */
-    GX2SetColorBuffer(&tdata->cbuf, GX2_RENDER_TARGET_0);
+    GX2SetColorBuffer(cbuf, GX2_RENDER_TARGET_0);
 
     /* These may be unnecessary - see SDL_render.c: SDL_SetRenderTarget's calls
        to UpdateViewport and UpdateClipRect. TODO for once the render is
        basically working */
-    GX2SetViewport(0, 0, (float)tdata->cbuf.surface.width, (float)tdata->cbuf.surface.height, 0.0f, 1.0f);
-    GX2SetScissor(0, 0, (float)tdata->cbuf.surface.width, (float)tdata->cbuf.surface.height);
+    GX2SetViewport(0, 0, (float)cbuf->surface.width, (float)cbuf->surface.height, 0.0f, 1.0f);
+    GX2SetScissor(0, 0, (float)cbuf->surface.width, (float)cbuf->surface.height);
 
     return 0;
 }
